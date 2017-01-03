@@ -1,4 +1,7 @@
+import os
+
 import numpy as np
+import h5py
 
 
 def parse_beatmap(s):
@@ -14,27 +17,34 @@ def parse_replay(s):
     return replay
 
 
-with open('osuReplayAnalyzer/log.txt') as fd:
-    beatmap = parse_beatmap(next(fd))
-    replays = np.zeros([50, beatmap.shape[0], 2])
-    for i, line in enumerate(fd):
-        # TODO treat hr and dt mod combinations differently
-        # for now, just pretend they're all nomod...
-        hr, dt, *replay = line.split(',')
-        replays[i, :, :] = parse_replay(replay)
+def process_beatmap(path):
+    with open(path) as fd:
+        beatmap = parse_beatmap(next(fd))
+        replays = np.zeros([50, beatmap.shape[0], 2])
+        for i, line in enumerate(fd):
+            # TODO treat hr and dt mod combinations differently
+            # for now, just pretend they're all nomod...
+            hr, dt, *replay = line.split(',')
+            replays[i, :, :] = parse_replay(replay)
+
+    times = beatmap[:, 0]
+    x = beatmap[:, 1]
+    y = beatmap[:, 2]
+    mean = np.nanmean(replays, axis=0)
+    delta = beatmap[:, 1:] - mean
+    stdev_2d = np.nanstd(replays, axis=0)
+    stdev = np.sqrt(np.sum(stdev_2d * stdev_2d, axis=1))
+
+    data = np.zeros([beatmap.shape[0], beatmap.shape[1] + 1])
+    data[:, :3] = beatmap
+    data[:, 3] = stdev
+    # TODO add mean difference if it seems useful
+    # TODO include correlation information
+    # TODO beatmap difficulty metadata
 
 
-times = beatmap[:, 0]
-x = beatmap[:, 1]
-y = beatmap[:, 2]
-mean = np.nanmean(replays, axis=0)
-delta = beatmap[:, 1:] - mean
-stdev_2d = np.nanstd(replays, axis=0)
-stdev = np.sqrt(np.sum(stdev_2d * stdev_2d, axis=1))
+for beatmap in os.listdir('data'):
+    path = os.path.join(data, beatmap)
+    if os.path.isfile(beatmap) and beatmap.endswith('.csv'):
+        data = process_beatmap(path)
 
-data = np.zeros([beatmap.shape[0], beatmap.shape[1] + 1])
-data[:, :3] = beatmap
-data[:, 3] = stdev
-# TODO add mean difference if it seems useful
-# TODO include correlation information
-# TODO beatmap difficulty metadata
