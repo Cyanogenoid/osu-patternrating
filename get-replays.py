@@ -35,8 +35,8 @@ for beatmap in tqdm(sorted(scores.keys())):
                 r = session.get(url, params=payload)
                 r.raise_for_status()
                 results = json.loads(r.text)
-                success = True
                 replay = results['content']
+                success = True
             except Exception as e:
                 print('ERROR ({} on {}): {}'.format(user, beatmap, e), file=sys.stderr)
 
