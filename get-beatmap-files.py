@@ -15,10 +15,17 @@ for beatmap in tqdm(beatmaps):
     success = False
     while not success:
         try:
+            path = os.path.join('data', beatmap, '{}.osu'.format(beatmap))
+            if os.path.isfile(path):
+                with open(path) as fd:
+                    if len(fd.read()) > 10:
+                        success = True
+                        continue
             r = session.get(url.format(beatmap))
             r.raise_for_status()
             result = r.text
-            path = os.path.join('data', beatmap, '{}.osu'.format(beatmap))
+            if len(result) < 10:
+                raise ValueError('Result too short')
             with open(path, 'w') as fd:
                 fd.write(result) 
             success = True
