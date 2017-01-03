@@ -17,6 +17,9 @@ for beatmap in tqdm(sorted(scores.keys())):
     beatmap_path = os.path.join('data', beatmap)
     if not os.path.exists(beatmap_path):
         os.makedirs(beatmap_path)
+    outdated = set(f[:-4] for f in os.listdir(beatmap_path) if f.endswith('.b64')) - set(scores[beatmap].keys())
+    for user in outdated:
+        os.remove(os.path.join(beatmap_path, '{}.b64'.format(user)))
     for user in tqdm(sorted(scores[beatmap])):
         path = os.path.join(beatmap_path, '{}.b64'.format(user))
         if os.path.exists(path):
