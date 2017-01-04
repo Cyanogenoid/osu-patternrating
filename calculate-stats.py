@@ -32,14 +32,17 @@ def process_beatmap(path):
     times = beatmap[:, 0]
     x = beatmap[:, 1]
     y = beatmap[:, 2]
+    movement = np.diff(beatmap, axis=0)
     mean = np.nanmean(replays, axis=0)
     delta = beatmap[:, 1:] - mean
     stdev_2d = np.nanstd(replays, axis=0)
     stdev = np.sqrt(np.sum(stdev_2d * stdev_2d, axis=1))
 
-    data = np.zeros([beatmap.shape[0], beatmap.shape[1] + 1])
-    data[:, :3] = beatmap
-    data[:, 3] = stdev
+    # first hitobject doesn't have any movement towards it, so it's ignored
+    # data thus has to start with the second hitobject
+    data = np.zeros([movement.shape[0], movement.shape[1] + 1])
+    data[:, :3] = movement
+    data[:, 3] = stdev[1:]
     # TODO add mean difference if it seems useful
     # TODO include correlation information
     # TODO beatmap difficulty metadata
