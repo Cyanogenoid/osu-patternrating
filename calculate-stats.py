@@ -35,8 +35,7 @@ def process_beatmap(path):
     movement = np.diff(beatmap, axis=0)
     mean = np.nanmean(replays, axis=0)
     delta = beatmap[:, 1:] - mean
-    stdev_2d = np.nanstd(replays, axis=0)
-    stdev = np.sqrt(np.sum(stdev_2d * stdev_2d, axis=1))
+    stdev = np.mean(np.nanstd(replays, axis=0), axis=1)
 
     # first hitobject doesn't have any movement towards it, so it's ignored
     # data thus has to start with the second hitobject
