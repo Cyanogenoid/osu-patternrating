@@ -23,10 +23,21 @@ def nwise(iterable, n):
     return zip(*iters)
 
 
+def normalize_rotation(vecs):
+    target = np.array([1, 0])
+    last = vecs[-1, :]
+    cos = last.dot(target)
+    sin = np.cross(last, target)
+    rotation = np.array([[cos, -sin], [sin, cos]])
+    rotated = rotation.dot(vecs.T)
+    return rotated
+
+
 def data_gen(data_src):
     for beatmap in data_src:
         for chunk in nwise(beatmap, HITOBJECT_LENGTH):
-            x = [entry[:3] for entry in chunk]
+            x = np.array([entry[:3] for entry in chunk])
+            x[:, 1:] = normalize_rotation(x[:, 1:])
             y = chunk[-1][3]
             yield x, y
 
