@@ -20,12 +20,14 @@ def parse_replay(s):
 def process_beatmap(path):
     with open(path) as fd:
         beatmap = parse_beatmap(next(fd))
-        replays = np.zeros([50, beatmap.shape[0], 2])
-        for i, line in enumerate(fd):
-            # TODO treat hr and dt mod combinations differently
-            # for now, just pretend they're all nomod...
-            hr, dt, *replay = line.split(',')
-            replays[i, :, :] = parse_replay(replay)
+        lines = fd.read().splitlines()
+
+    replays = np.zeros([len(lines), beatmap.shape[0], 2])
+    for i, line in enumerate(lines):
+        # TODO treat hr and dt mod combinations differently
+        # for now, just pretend they're all nomod...
+        hr, dt, *replay = line.split(',')
+        replays[i, :, :] = parse_replay(replay)
 
     times = beatmap[:, 0]
     x = beatmap[:, 1]
@@ -41,10 +43,12 @@ def process_beatmap(path):
     # TODO add mean difference if it seems useful
     # TODO include correlation information
     # TODO beatmap difficulty metadata
+    return data
 
 
 for beatmap in os.listdir('data'):
-    path = os.path.join(data, beatmap)
-    if os.path.isfile(beatmap) and beatmap.endswith('.csv'):
+    path = os.path.join('data', beatmap)
+    if beatmap.endswith('.csv'):
         data = process_beatmap(path)
+        print(data.shape)
 
