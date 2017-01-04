@@ -7,7 +7,7 @@ from keras.layers import Activation, Dense, Input
 from keras.layers.recurrent import LSTM
 
 
-HITOBJECT_LENGTH = 3
+HITOBJECT_LENGTH = 2
 
 
 file = h5py.File('data.hdf5')
@@ -34,6 +34,8 @@ def data_gen(data_src):
 all_objects = np.vstack(data)
 mean = np.mean(all_objects, axis=0)
 std = np.std(all_objects, axis=0)
+print('mean', mean)
+print('std', std)
 
 data = [(beatmap - mean) / std for beatmap in data]
 X = []
@@ -59,7 +61,7 @@ x = Activation('relu')(x)
 x = Dense(1)(x)
 
 model = Model(input=input, output=x)
-model.compile(loss='mse', optimizer='rmsprop')
+model.compile(loss='mse', optimizer='adam')
 
-model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=25)
+model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=50)
 model.save('test.model')
