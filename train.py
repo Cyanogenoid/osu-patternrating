@@ -33,7 +33,9 @@ def data_gen(data_src):
 
 all_objects = np.vstack(data)
 mean = np.mean(all_objects, axis=0)
+mean[1:3] = np.mean(mean[1:3])
 std = np.std(all_objects, axis=0)
+std[1:3] = np.mean(std[1:3])
 print('mean', mean)
 print('std', std)
 
