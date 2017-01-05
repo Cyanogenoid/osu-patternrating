@@ -30,6 +30,9 @@ def normalize_rotation(vecs):
     sin = np.cross(last, target)
     rotation = np.array([[cos, -sin], [sin, cos]])
     rotated = rotation.dot(vecs.T)
+    if rotated[-2, 1] < 0:
+        flip_y = np.array([[1, 0], [0, -1]])
+        rotated = flip_y.dot(rotated)
     return rotated
 
 
