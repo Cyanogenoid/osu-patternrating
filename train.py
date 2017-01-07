@@ -3,9 +3,7 @@ import itertools
 import numpy as np
 import h5py
 from keras.models import Model
-from keras.layers import Activation, Dense, Input, Flatten, Merge
-from keras.layers.normalization import BatchNormalization
-from keras.layers.advanced_activations import PReLU
+from keras.layers import Activation, Dense, Input, Dropout
 
 
 PATTERN_LENGTH = 2
@@ -75,10 +73,11 @@ x = input
 for i in range(8):
     x = Dense(256)(x)
     x = Activation('relu')(x)
+    x = Dropout(i / 7 * 0.5)(x)
 x = Dense(1)(x)
 
 model = Model(input=input, output=x)
 model.compile(loss='mse', optimizer='adam')
 
-model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=50)
+model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=100)
 model.save('test.model')
