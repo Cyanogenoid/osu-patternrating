@@ -24,16 +24,15 @@ def nwise(iterable, n):
     return zip(*iters)
 
 
-def normalise_angle_in_halfcircle(angle):
-    between_zero_and_two_pi = angle % (2 * np.pi)
-    between_minus_pi_and_pi = between_zero_and_two_pi - np.pi
-    between_zero_and_pi = np.sign(between_minus_pi_and_pi) * between_minus_pi_and_pi
-    return between_zero_and_pi
+def normalize_angle_into_half_circle(angle):
+    angle %= 2 * np.pi
+    angle -= 2 * np.pi * (angle > np.pi)
+    return np.abs(angle)
 
 
 def process_pattern(pattern):
     time_and_magnitudes = pattern[:, :2].T.flatten()
-    delta_angles = normalise_angle_in_halfcircle(np.diff(pattern[:, 2]))/np.pi - 0.5
+    delta_angles = normalize_angle_into_half_circle(np.diff(pattern[:, 2])) / np.pi - 0.5
     #previous_std = pattern[0, 3].flatten()
     feature_vector = [time_and_magnitudes, delta_angles]
     feature_vector = np.concatenate(feature_vector)
