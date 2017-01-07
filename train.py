@@ -3,11 +3,12 @@ import itertools
 import numpy as np
 import h5py
 from keras.models import Model
-from keras.layers import Activation, Dense, Input
-from keras.layers.recurrent import LSTM
+from keras.layers import Activation, Dense, Input, Flatten, Merge
+from keras.layers.normalization import BatchNormalization
+from keras.layers.advanced_activations import PReLU
 
 
-HITOBJECT_LENGTH = 2
+PATTERN_LENGTH = 2
 
 
 file = h5py.File('data.hdf5')
@@ -23,33 +24,36 @@ def nwise(iterable, n):
     return zip(*iters)
 
 
-def normalize_rotation(vecs):
-    target = np.array([1, 0])
-    last = vecs[-1, :]
-    cos = last.dot(target)
-    sin = np.cross(last, target)
-    rotation = np.array([[cos, -sin], [sin, cos]])
-    rotated = rotation.dot(vecs.T)
-    if rotated[-2, 1] < 0:
-        flip_y = np.array([[1, 0], [0, -1]])
-        rotated = flip_y.dot(rotated)
-    return rotated
+def normalise_angle_in_halfcircle(angle):
+    between_zero_and_two_pi = angle % (2 * np.pi)
+    between_minus_pi_and_pi = between_zero_and_two_pi - np.pi
+    between_zero_and_pi = np.sign(between_minus_pi_and_pi) * between_minus_pi_and_pi
+    return between_zero_and_pi
+
+
+def process_pattern(pattern):
+    time_and_magnitudes = pattern[:, :2].T.flatten()
+    delta_angles = normalise_angle_in_halfcircle(np.diff(pattern[:, 2]))/np.pi - 0.5
+    #previous_std = pattern[0, 3].flatten()
+    feature_vector = [time_and_magnitudes, delta_angles]
+    feature_vector = np.concatenate(feature_vector)
+    return feature_vector
 
 
 def data_gen(data_src):
     for beatmap in data_src:
-        for chunk in nwise(beatmap, HITOBJECT_LENGTH):
-            x = np.array([entry[:3] for entry in chunk])
-            x[:, 1:] = normalize_rotation(x[:, 1:])
-            y = chunk[-1][3]
+        for pattern in nwise(beatmap, PATTERN_LENGTH):
+            pattern_data = np.array(pattern)
+            x = process_pattern(pattern_data)
+            y = pattern[-1][3]
             yield x, y
 
 
 all_objects = np.vstack(data)
 mean = np.mean(all_objects, axis=0)
-mean[1:3] = np.mean(mean[1:3])
 std = np.std(all_objects, axis=0)
-std[1:3] = np.mean(std[1:3])
+mean[2] = 0
+std[2] = 1
 print('mean', mean)
 print('std', std)
 
@@ -67,13 +71,11 @@ np.random.set_state(rng)
 np.random.shuffle(Y)
 
 
-input = Input(shape=(HITOBJECT_LENGTH, 3))
+input = Input(shape=[X.shape[1]])
 x = input
-x = LSTM(32)(x)
-x = Dense(256)(x)
-x = Activation('relu')(x)
-x = Dense(32)(x)
-x = Activation('relu')(x)
+for i in range(8):
+    x = Dense(256)(x)
+    x = Activation('relu')(x)
 x = Dense(1)(x)
 
 model = Model(input=input, output=x)
