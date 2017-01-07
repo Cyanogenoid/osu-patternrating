@@ -54,8 +54,8 @@ mean = np.mean(all_objects, axis=0)
 std = np.std(all_objects, axis=0)
 mean[2] = 0
 std[2] = 1
-print('mean', mean)
-print('std', std)
+print('mean = [{}]'.format(', '.join(map(str, mean))))
+print('std = [{}]'.format(', '.join(map(str, std))))
 
 data = [(beatmap - mean) / std for beatmap in data]
 X = []
