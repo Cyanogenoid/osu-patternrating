@@ -51,8 +51,8 @@ mean = np.mean(all_objects, axis=0)
 std = np.std(all_objects, axis=0)
 mean[2] = 0
 std[2] = 1
-print('mean = [{}]'.format(', '.join(map(str, mean))))
-print('std = [{}]'.format(', '.join(map(str, std))))
+with open('.train-stats', 'w') as fd:
+    fd.write(','.join(map(str, [mean[0], mean[1], std[0], std[1]])))
 
 data = [(beatmap - mean) / std for beatmap in data]
 X = []
