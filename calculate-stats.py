@@ -29,10 +29,10 @@ def process_beatmap(path):
         hr, dt, *replay = line.split(',')
         replays[i, :, :] = parse_replay(replay)
 
-    times = beatmap[:, 0]
-    x = beatmap[:, 1]
-    y = beatmap[:, 2]
     movement = np.diff(beatmap, axis=0)
+    times_delta = movement[:, 0]
+    movement_lengths = np.linalg.norm(movement[:, 1:], axis=1)
+    movement_angles = np.arctan2(movement[:, 2], movement[:, 1])
     mean = np.nanmean(replays, axis=0)
     delta = beatmap[:, 1:] - mean
     stdev = np.mean(np.nanstd(replays, axis=0), axis=1)
@@ -40,7 +40,9 @@ def process_beatmap(path):
     # first hitobject doesn't have any movement towards it, so it's ignored
     # data thus has to start with the second hitobject
     data = np.zeros([movement.shape[0], movement.shape[1] + 1])
-    data[:, :3] = movement
+    data[:, 0] = times_delta
+    data[:, 1] = movement_lengths
+    data[:, 2] = movement_angles
     data[:, 3] = stdev[1:]
     # TODO add mean difference if it seems useful
     # TODO include correlation information
