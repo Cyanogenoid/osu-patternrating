@@ -1,6 +1,7 @@
 import itertools
 
 import numpy as np
+np.random.seed(11037)
 import h5py
 from keras.models import Model
 from keras.layers import Activation, Dense, Input, Dropout
