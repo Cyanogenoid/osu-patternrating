@@ -65,7 +65,10 @@ def process_beatmap(path):
         yield data
 
 
-file = h5py.File('data.hdf5')
+hdf5_path = 'data.hdf5'
+if os.path.isfile(hdf5_path):
+    os.remove(hdf5_path)
+file = h5py.File(hdf5_path)
 for beatmap in os.listdir('data'):
     if beatmap.endswith('.csv'):
         path = os.path.join('data', beatmap)
