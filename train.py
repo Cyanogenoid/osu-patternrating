@@ -48,7 +48,7 @@ def data_gen(data_src):
             yield x, y
 
 
-# time delta, movement magnitude, movement angle, stdev, circle size
+# time delta, movement magnitude, movement angle, stdev, circle radius
 all_objects = np.vstack(data)
 mean = np.mean(all_objects, axis=0)
 std = np.std(all_objects, axis=0)
