@@ -1,3 +1,6 @@
 [submodule "osuReplayAnalyzer"]
 	path = analyzer
 	url = git@github.com:Cyanogenoid/osuReplayAnalyzer
+[submodule "weightnorm"]
+	path = weightnorm
+	url = https://github.com/openai/weightnorm

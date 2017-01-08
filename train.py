@@ -1,3 +1,4 @@
+import sys
 import itertools
 
 import numpy as np
@@ -6,6 +7,8 @@ import h5py
 from keras.models import Model
 from keras.layers import Activation, Dense, Input, Dropout
 from keras.layers.normalization import BatchNormalization
+sys.path.append('weightnorm/keras')
+import weightnorm
 
 
 PATTERN_LENGTH = 2
@@ -81,7 +84,7 @@ for i in range(8):
 x = Dense(1)(x)
 
 model = Model(input=input, output=x)
-model.compile(loss='mse', optimizer='adam')
+model.compile(loss='mse', optimizer=weightnorm.AdamWithWeightnorm())
 
 model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=50)
 model.save('test.model')
