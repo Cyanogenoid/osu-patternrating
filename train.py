@@ -5,6 +5,7 @@ np.random.seed(11037)
 import h5py
 from keras.models import Model
 from keras.layers import Activation, Dense, Input, Dropout
+from keras.layers.normalization import BatchNormalization
 
 
 PATTERN_LENGTH = 2
@@ -75,8 +76,8 @@ input = Input(shape=[X.shape[1]])
 x = input
 for i in range(8):
     x = Dense(128)(x)
+    x = BatchNormalization()(x)
     x = Activation('relu')(x)
-    x = Dropout(i / 7 * 0.5)(x)
 x = Dense(1)(x)
 
 model = Model(input=input, output=x)
