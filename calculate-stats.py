@@ -5,8 +5,7 @@ import h5py
 
 
 def parse_beatmap(s):
-    beatmap = [float(x) for x in s.split(',') if x != '\n']
-    beatmap = list(map(float, s.split(',')[:-1]))
+    beatmap = list(map(float, s[:-1]))
     beatmap = np.array(beatmap).reshape(len(beatmap) // 3, 3)
     return beatmap
 
@@ -19,7 +18,8 @@ def parse_replay(s):
 
 def process_beatmap(path):
     with open(path) as fd:
-        beatmap = parse_beatmap(next(fd))
+        cs, *beatmap = next(fd).split(',')
+        beatmap = parse_beatmap(beatmap)
         lines = fd.read().splitlines()
 
     replays = np.zeros([len(lines), beatmap.shape[0], 2])
@@ -44,6 +44,7 @@ def process_beatmap(path):
     data[:, 1] = movement_lengths
     data[:, 2] = movement_angles
     data[:, 3] = stdev[1:]
+    data[:, 4] = cs
     # TODO add mean difference if it seems useful
     # TODO include correlation information
     # TODO beatmap difficulty metadata
