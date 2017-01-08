@@ -74,7 +74,7 @@ np.random.shuffle(Y)
 input = Input(shape=[X.shape[1]])
 x = input
 for i in range(8):
-    x = Dense(256)(x)
+    x = Dense(128)(x)
     x = Activation('relu')(x)
     x = Dropout(i / 7 * 0.5)(x)
 x = Dense(1)(x)
@@ -82,5 +82,5 @@ x = Dense(1)(x)
 model = Model(input=input, output=x)
 model.compile(loss='mse', optimizer='adam')
 
-model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=100)
+model.fit(X, Y, validation_split=0.2, batch_size=4096, nb_epoch=50)
 model.save('test.model')
