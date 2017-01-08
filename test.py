@@ -7,12 +7,15 @@ model.summary()
 
 
 with open('.train-stats') as fd:
-    m0, m1, std0, std1 = map(float, fd.read().split(','))
+    m0, m1, m4, std0, std1, std4 = map(float, fd.read().split(','))
 
 bpm = 180
 rhythm = 1/2
+cs = 4
+
 tdelta = np.array([60 * 1000 / bpm * rhythm for _ in range(2)])
 tdelta = (tdelta - m0) / std0
+circle_radius  = ((109 - 9 * cs) - m4) / std4
 
 def evaluate(first_length, angle_between, second_length):
     '''
@@ -22,7 +25,7 @@ def evaluate(first_length, angle_between, second_length):
     second_length: distance of second movement in pixels
     '''
     lengths = (np.array([first_length, second_length]) - m1) / std1
-    data = np.concatenate([tdelta, lengths, [angle_between]])
+    data = np.concatenate([tdelta, lengths, [angle_between, circle_radius]])
     data = data.reshape(1, data.shape[0])
     prediction = model.predict(data)
     print('difficulty score:', prediction)
