@@ -50,14 +50,15 @@ def process_beatmap(path):
 
         rate_multiplier = 1.5 if dt > 0 else 0.75 if dt < 0 else 1.0
         diff_multiplier = 1.4 if hr > 0 else 0.5 if hr < 0 else 1.0
+        actual_radius = 109 - 9 * min(cs * diff_multiplier, 10)
         # first hitobject doesn't have any movement towards it, so it's ignored
         # data thus has to start with the second hitobject
         data = np.zeros([movement.shape[0], movement.shape[1] + 2])
         data[:, 0] = times_delta / rate_multiplier
         data[:, 1] = movement_lengths
         data[:, 2] = movement_angles
-        data[:, 3] = stdev[1:]
-        data[:, 4] = min(cs * diff_multiplier, 10)
+        data[:, 3] = stdev[1:] / actual_radius
+        data[:, 4] = actual_radius
         # TODO mean difference if it seems useful
         # TODO correlation/covariance instead of mean of variance
         # TODO more beatmap difficulty metadata

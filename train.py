@@ -31,9 +31,9 @@ def normalize_angle_into_half_circle(angle):
 
 def process_pattern(pattern):
     time_and_magnitudes = pattern[:, :2].T.flatten()
-    delta_angles = normalize_angle_into_half_circle(np.diff(pattern[:, 2])) / np.pi - 0.5
+    delta_angles = normalize_angle_into_half_circle(np.diff(pattern[:, 2])) - 0.5
     #previous_std = pattern[0, 3].flatten()
-    circle_size = pattern[0, 4].flatten()
+    circle_radius = pattern[0, 4].flatten()
     feature_vector = [time_and_magnitudes, delta_angles, circle_size]
     feature_vector = np.concatenate(feature_vector)
     return feature_vector
@@ -52,12 +52,11 @@ def data_gen(data_src):
 all_objects = np.vstack(data)
 mean = np.mean(all_objects, axis=0)
 std = np.std(all_objects, axis=0)
-mean[2] = 0
-std[2] = 1
 with open('.train-stats', 'w') as fd:
     fd.write(','.join(map(str, [mean[0], mean[1], mean[4], std[0], std[1], std[4]])))
 
 data = [(beatmap - mean) / std for beatmap in data]
+data[:, 2] += mean[2]
 X = []
 Y = []
 for x, y in data_gen(data):
