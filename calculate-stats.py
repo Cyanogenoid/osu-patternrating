@@ -39,7 +39,6 @@ def process_beatmap(path):
     movement_lengths = np.linalg.norm(movement[:, 1:], axis=1)
     movement_angles = np.arctan2(movement[:, 2], movement[:, 1])
 
-    modded_beatmaps = []
     for mod_combination, replays in mod.items():
         if replays.shape[0] < 10:
             # too few replays to get anything useful out of it
@@ -58,12 +57,11 @@ def process_beatmap(path):
         data[:, 1] = movement_lengths
         data[:, 2] = movement_angles
         data[:, 3] = stdev[1:]
-        data[:, 4] = cs * diff_multiplier
+        data[:, 4] = min(cs * diff_multiplier, 10)
         # TODO mean difference if it seems useful
         # TODO correlation/covariance instead of mean of variance
         # TODO more beatmap difficulty metadata
-        modded_beatmaps.append(data)
-    return modded_beatmaps
+        yield data
 
 
 file = h5py.File('data.hdf5')
